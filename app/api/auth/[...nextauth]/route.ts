@@ -2,7 +2,7 @@ import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
 const ALLOWED_EMAILS = [
-  'erikbledsoe@gmail.com', // update with your actual Gmail
+  'jerikbledsoe@gmail.com',
 ]
 
 const handler = NextAuth({
