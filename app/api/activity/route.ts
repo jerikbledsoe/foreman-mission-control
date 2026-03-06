@@ -1,19 +1,15 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-
-const dataPath = path.join(process.cwd(), 'data', 'activity.json')
+import { supabase } from '@/lib/supabase'
 
 export async function GET() {
-  const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
-  return NextResponse.json(data.reverse())
+  const { data, error } = await supabase.from('activity').select('*').order('timestamp', { ascending: false }).limit(50)
+  if (error) return NextResponse.json([], { status: 500 })
+  return NextResponse.json(data)
 }
 
 export async function POST(req: Request) {
   const body = await req.json()
-  const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
-  const newEntry = { id: `act-${Date.now()}`, timestamp: new Date().toISOString(), ...body }
-  data.push(newEntry)
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2))
-  return NextResponse.json(newEntry)
+  const { error } = await supabase.from('activity').insert(body)
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ ok: true })
 }
