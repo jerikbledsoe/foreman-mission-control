@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { Clock, Zap, Lightbulb, CheckCircle2, Loader2, AlertCircle, Circle, RefreshCw, Map, Plus, Check, Brain, ExternalLink, Trash2 } from 'lucide-react'
+import { Clock, Zap, Lightbulb, CheckCircle2, Loader2, AlertCircle, Circle, RefreshCw, Map, Plus, Check, Brain, ExternalLink, Trash2, LogOut } from 'lucide-react'
+import { signOut } from 'next-auth/react'
 
 type Task = {
   id: string
@@ -279,23 +280,25 @@ export default function MissionControl() {
 
   async function fetchAll() {
     try {
-      const [
-        { data: t }, { data: a }, { data: i }, { data: p }, { data: ci }, { data: bq }
-      ] = await Promise.all([
+      const results = await Promise.all([
         getSb().from('tasks').select('*'),
         getSb().from('activity').select('*').order('timestamp', { ascending: false }).limit(50),
         getSb().from('ideas').select('*'),
-        getSb().from('phases').select('*').order('startDate', { ascending: true }),
+        getSb().from('phases').select('*'),
         getSb().from('content_intel').select('*').order('addedAt', { ascending: false }),
-        getSb().from('batch_queue').select('*').order('queuedAt', { ascending: true }),
+        getSb().from('batch_queue').select('*'),
       ])
-      setTasks(t || [])
-      setActivity(a || [])
-      setIdeas(i || [])
-      setPhases(p || [])
-      setIntel(ci || [])
-      setBatch(bq || [])
+      const [t, a, i, p, ci, bq] = results
+      console.log('Supabase results:', results.map(r => ({ data: r.data?.length, error: r.error })))
+      setTasks(t.data || [])
+      setActivity(a.data || [])
+      setIdeas(i.data || [])
+      setPhases(p.data || [])
+      setIntel(ci.data || [])
+      setBatch(bq.data || [])
       setLastRefresh(new Date())
+    } catch(e) {
+      console.error('fetchAll error:', e)
     } finally {
       setLoading(false)
     }
@@ -421,6 +424,9 @@ export default function MissionControl() {
             </button>
           </div>
           <span className="text-xs text-zinc-600">Refreshed {fmt(lastRefresh.toISOString())}</span>
+            <button onClick={() => signOut()} className="text-zinc-600 hover:text-zinc-400 transition-colors ml-2" title="Sign out">
+              <LogOut className="w-4 h-4" />
+            </button>
           <button onClick={fetchAll} className="text-zinc-500 hover:text-zinc-300 transition-colors">
             <RefreshCw className="w-4 h-4" />
           </button>
