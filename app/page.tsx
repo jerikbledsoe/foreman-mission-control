@@ -253,23 +253,39 @@ export default function MissionControl() {
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [loading, setLoading] = useState(true)
 
+  async function fetchWithTimeout(url: string, ms = 8000) {
+    const controller = new AbortController()
+    const id = setTimeout(() => controller.abort(), ms)
+    try {
+      const res = await fetch(url, { signal: controller.signal })
+      clearTimeout(id)
+      return res.json()
+    } catch {
+      clearTimeout(id)
+      return []
+    }
+  }
+
   async function fetchAll() {
-    const [t, a, i, p, ci, bq] = await Promise.all([
-      fetch('/api/tasks').then(r => r.json()),
-      fetch('/api/activity').then(r => r.json()),
-      fetch('/api/ideas').then(r => r.json()),
-      fetch('/api/phases').then(r => r.json()),
-      fetch('/api/content-intel').then(r => r.json()),
-      fetch('/api/batch').then(r => r.json()),
-    ])
-    setTasks(t)
-    setActivity(a)
-    setIdeas(i)
-    setPhases(p)
-    setIntel(ci)
-    setBatch(bq)
-    setLastRefresh(new Date())
-    setLoading(false)
+    try {
+      const [t, a, i, p, ci, bq] = await Promise.all([
+        fetchWithTimeout('/api/tasks'),
+        fetchWithTimeout('/api/activity'),
+        fetchWithTimeout('/api/ideas'),
+        fetchWithTimeout('/api/phases'),
+        fetchWithTimeout('/api/content-intel'),
+        fetchWithTimeout('/api/batch'),
+      ])
+      setTasks(Array.isArray(t) ? t : [])
+      setActivity(Array.isArray(a) ? a : [])
+      setIdeas(Array.isArray(i) ? i : [])
+      setPhases(Array.isArray(p) ? p : [])
+      setIntel(Array.isArray(ci) ? ci : [])
+      setBatch(Array.isArray(bq) ? bq : [])
+      setLastRefresh(new Date())
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function addToBatch(id: string) {
