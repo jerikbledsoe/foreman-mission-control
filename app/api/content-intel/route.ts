@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 
 export async function GET(req: Request) {
+  const sb = getSupabase()
   const { searchParams } = new URL(req.url)
   const brand = searchParams.get('brand')
   const week = searchParams.get('week')
 
-  let query = supabase.from('content_intel').select('*').order('addedAt', { ascending: false })
+  let query = sb.from('content_intel').select('*').order('addedAt', { ascending: false })
   if (brand) query = query.eq('brand', brand)
   if (week && week !== 'all') query = query.eq('week', week)
 
@@ -16,16 +17,18 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const sb = getSupabase()
   const body = await req.json()
   const row = { ...body, id: body.id || crypto.randomUUID(), addedAt: new Date().toISOString() }
-  const { error } = await supabase.from('content_intel').insert(row)
+  const { error } = await sb.from('content_intel').insert(row)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ ok: true, id: row.id })
 }
 
 export async function DELETE(req: Request) {
+  const sb = getSupabase()
   const body = await req.json()
-  const { error } = await supabase.from('content_intel').delete().eq('id', body.id)
+  const { error } = await sb.from('content_intel').delete().eq('id', body.id)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

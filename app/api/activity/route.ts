@@ -1,15 +1,17 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 
 export async function GET() {
-  const { data, error } = await supabase.from('activity').select('*').order('timestamp', { ascending: false }).limit(50)
+  const sb = getSupabase()
+  const { data, error } = await sb.from('activity').select('*').order('timestamp', { ascending: false }).limit(50)
   if (error) return NextResponse.json([], { status: 500 })
   return NextResponse.json(data)
 }
 
 export async function POST(req: Request) {
+  const sb = getSupabase()
   const body = await req.json()
-  const { error } = await supabase.from('activity').insert(body)
+  const { error } = await sb.from('activity').insert(body)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ ok: true })
 }
