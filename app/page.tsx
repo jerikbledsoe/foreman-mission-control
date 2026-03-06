@@ -1,6 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+const sb = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 import { Clock, Zap, Lightbulb, CheckCircle2, Loader2, AlertCircle, Circle, RefreshCw, Map, Plus, Check, Brain, ExternalLink, Trash2 } from 'lucide-react'
 
 type Task = {
@@ -268,20 +274,22 @@ export default function MissionControl() {
 
   async function fetchAll() {
     try {
-      const [t, a, i, p, ci, bq] = await Promise.all([
-        fetchWithTimeout('/api/tasks'),
-        fetchWithTimeout('/api/activity'),
-        fetchWithTimeout('/api/ideas'),
-        fetchWithTimeout('/api/phases'),
-        fetchWithTimeout('/api/content-intel'),
-        fetchWithTimeout('/api/batch'),
+      const [
+        { data: t }, { data: a }, { data: i }, { data: p }, { data: ci }, { data: bq }
+      ] = await Promise.all([
+        sb.from('tasks').select('*'),
+        sb.from('activity').select('*').order('timestamp', { ascending: false }).limit(50),
+        sb.from('ideas').select('*'),
+        sb.from('phases').select('*').order('startDate', { ascending: true }),
+        sb.from('content_intel').select('*').order('addedAt', { ascending: false }),
+        sb.from('batch_queue').select('*').order('queuedAt', { ascending: true }),
       ])
-      setTasks(Array.isArray(t) ? t : [])
-      setActivity(Array.isArray(a) ? a : [])
-      setIdeas(Array.isArray(i) ? i : [])
-      setPhases(Array.isArray(p) ? p : [])
-      setIntel(Array.isArray(ci) ? ci : [])
-      setBatch(Array.isArray(bq) ? bq : [])
+      setTasks(t || [])
+      setActivity(a || [])
+      setIdeas(i || [])
+      setPhases(p || [])
+      setIntel(ci || [])
+      setBatch(bq || [])
       setLastRefresh(new Date())
     } finally {
       setLoading(false)
@@ -289,31 +297,24 @@ export default function MissionControl() {
   }
 
   async function addToBatch(id: string) {
-    await fetch('/api/batch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'add', id })
-    })
-    const bq = await fetch('/api/batch').then(r => r.json())
-    setBatch(bq)
+    const row = intel.find(r => r.id === id)
+    if (!row) return
+    const { data: existing } = await sb.from('batch_queue').select('id').eq('id', id).single()
+    if (!existing) {
+      await sb.from('batch_queue').insert({ ...row, erikNote: '', queuedAt: new Date().toISOString() })
+    }
+    const { data: bq } = await sb.from('batch_queue').select('*').order('queuedAt', { ascending: true })
+    setBatch(bq || [])
   }
 
   async function removeFromBatch(id: string) {
-    await fetch('/api/batch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'remove', id })
-    })
-    const bq = await fetch('/api/batch').then(r => r.json())
-    setBatch(bq)
+    await sb.from('batch_queue').delete().eq('id', id)
+    const { data: bq } = await sb.from('batch_queue').select('*').order('queuedAt', { ascending: true })
+    setBatch(bq || [])
   }
 
   async function updateNote(id: string, note: string) {
-    await fetch('/api/batch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'note', id, note })
-    })
+    await sb.from('batch_queue').update({ erikNote: note }).eq('id', id)
   }
 
   async function sendBatch() {
