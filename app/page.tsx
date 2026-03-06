@@ -1,12 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
-
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { useEffect, useState, useRef } from 'react'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Clock, Zap, Lightbulb, CheckCircle2, Loader2, AlertCircle, Circle, RefreshCw, Map, Plus, Check, Brain, ExternalLink, Trash2 } from 'lucide-react'
 
 type Task = {
@@ -258,6 +253,16 @@ export default function MissionControl() {
   const [batchSent, setBatchSent] = useState(false)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [loading, setLoading] = useState(true)
+  const sbRef = useRef<SupabaseClient | null>(null)
+  function getSb() {
+    if (!sbRef.current) {
+      sbRef.current = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+    }
+    return sbRef.current
+  }
 
   async function fetchWithTimeout(url: string, ms = 8000) {
     const controller = new AbortController()
@@ -277,12 +282,12 @@ export default function MissionControl() {
       const [
         { data: t }, { data: a }, { data: i }, { data: p }, { data: ci }, { data: bq }
       ] = await Promise.all([
-        sb.from('tasks').select('*'),
-        sb.from('activity').select('*').order('timestamp', { ascending: false }).limit(50),
-        sb.from('ideas').select('*'),
-        sb.from('phases').select('*').order('startDate', { ascending: true }),
-        sb.from('content_intel').select('*').order('addedAt', { ascending: false }),
-        sb.from('batch_queue').select('*').order('queuedAt', { ascending: true }),
+        getSb().from('tasks').select('*'),
+        getSb().from('activity').select('*').order('timestamp', { ascending: false }).limit(50),
+        getSb().from('ideas').select('*'),
+        getSb().from('phases').select('*').order('startDate', { ascending: true }),
+        getSb().from('content_intel').select('*').order('addedAt', { ascending: false }),
+        getSb().from('batch_queue').select('*').order('queuedAt', { ascending: true }),
       ])
       setTasks(t || [])
       setActivity(a || [])
@@ -299,22 +304,22 @@ export default function MissionControl() {
   async function addToBatch(id: string) {
     const row = intel.find(r => r.id === id)
     if (!row) return
-    const { data: existing } = await sb.from('batch_queue').select('id').eq('id', id).single()
+    const { data: existing } = await getSb().from('batch_queue').select('id').eq('id', id).single()
     if (!existing) {
-      await sb.from('batch_queue').insert({ ...row, erikNote: '', queuedAt: new Date().toISOString() })
+      await getSb().from('batch_queue').insert({ ...row, erikNote: '', queuedAt: new Date().toISOString() })
     }
-    const { data: bq } = await sb.from('batch_queue').select('*').order('queuedAt', { ascending: true })
+    const { data: bq } = await getSb().from('batch_queue').select('*').order('queuedAt', { ascending: true })
     setBatch(bq || [])
   }
 
   async function removeFromBatch(id: string) {
-    await sb.from('batch_queue').delete().eq('id', id)
-    const { data: bq } = await sb.from('batch_queue').select('*').order('queuedAt', { ascending: true })
+    await getSb().from('batch_queue').delete().eq('id', id)
+    const { data: bq } = await getSb().from('batch_queue').select('*').order('queuedAt', { ascending: true })
     setBatch(bq || [])
   }
 
   async function updateNote(id: string, note: string) {
-    await sb.from('batch_queue').update({ erikNote: note }).eq('id', id)
+    await getSb().from('batch_queue').update({ erikNote: note }).eq('id', id)
   }
 
   async function sendBatch() {
