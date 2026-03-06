@@ -1,0 +1,137 @@
+[
+  {
+    "id": "task-015",
+    "name": "The Build Show — OBS Setup",
+    "status": "in-progress",
+    "model": "Erik",
+    "startedAt": "2026-03-05T08:00:00-06:00",
+    "completedAt": null,
+    "notes": "Install OBS, configure scenes (personal cam, room cam, screen share), test stream to YouTube. Tue/Thu 2-4PM live show."
+  },
+  {
+    "id": "task-014",
+    "name": "YouTube Live Stream Link → AAA Circle",
+    "status": "backlog",
+    "model": "Erik",
+    "startedAt": null,
+    "completedAt": null,
+    "notes": "Create YouTube live stream link for Tue/Thu 2-4PM. Send to AAA for their Circle community listing."
+  },
+  {
+    "id": "task-013",
+    "name": "Social Media Bios, Visuals, Links — All Brands",
+    "status": "backlog",
+    "model": "Foreman + Erik",
+    "startedAt": null,
+    "completedAt": null,
+    "notes": "Update all profiles across YouTube, LinkedIn, Instagram, Facebook. Bios, cover images, links. Phase 1 completion item."
+  },
+  {
+    "id": "task-012",
+    "name": "Meta Business Suite Cleanup",
+    "status": "backlog",
+    "model": "Erik",
+    "startedAt": null,
+    "completedAt": null,
+    "notes": "Separate ad accounts + pixels per brand (TTH, EBB, Rock Castle). Clean up old client remnants."
+  },
+  {
+    "id": "task-011",
+    "name": "Rock Castle Google Business Listing",
+    "status": "backlog",
+    "model": "Erik",
+    "startedAt": null,
+    "completedAt": null,
+    "notes": "Claim and optimize Rock Castle AI Google Business listing. Phase 1 blocker."
+  },
+  {
+    "id": "task-010",
+    "name": "Builder's Blueprint — PDF Formatting",
+    "status": "waiting",
+    "model": "Foreman",
+    "startedAt": "2026-03-05T07:00:00-06:00",
+    "completedAt": null,
+    "notes": "Framework written (~3,000 words). In Discord #Builder-Content-Drafts. Erik reviews → format as PDF → ManyChat delivery."
+  },
+  {
+    "id": "task-009",
+    "name": "Rock Castle Outreach Tracker",
+    "status": "waiting",
+    "model": "Foreman",
+    "startedAt": "2026-03-05T07:00:00-06:00",
+    "completedAt": null,
+    "notes": "13 Nashville prospects, priority tiered, first-touch messages. In Discord #Scout-Research. Erik to begin outreach."
+  },
+  {
+    "id": "task-008",
+    "name": "LinkedIn Drafts Review (8 total)",
+    "status": "waiting",
+    "model": "Builder",
+    "startedAt": "2026-03-02T00:00:00-06:00",
+    "completedAt": null,
+    "notes": "8 drafts in content/linkedin/drafts/. Hold until March 9. React 👍 approve, 👎 kill, 💬 comment."
+  },
+  {
+    "id": "task-007",
+    "name": "Dowdle Construction Presentation Prep",
+    "status": "backlog",
+    "model": "Foreman",
+    "startedAt": null,
+    "completedAt": null,
+    "notes": "Presentation to Dowdle Wednesday March 11. Developer brief revised March 3, new bid incoming."
+  },
+  {
+    "id": "task-006",
+    "name": "Assisted Living Kitchen OS — Deal Brief",
+    "status": "completed",
+    "model": "Scout",
+    "startedAt": "2026-03-04T20:05:00-06:00",
+    "completedAt": "2026-03-04T20:13:00-06:00",
+    "notes": "Full deal structure brief at research/2026-03-04-assisted-living-kitchen-os-deal-brief.md. Market pricing, IP terms, revenue splits, conversation prep."
+  },
+  {
+    "id": "task-005",
+    "name": "Phase Roadmap — $1M by 2026",
+    "status": "completed",
+    "model": "Foreman",
+    "startedAt": "2026-03-02T00:00:00-06:00",
+    "completedAt": "2026-03-03T00:00:00-06:00",
+    "notes": "Full roadmap at strategy/phase-roadmap.md. 5 phases, Jerusalem model, Nashville AI Collective."
+  },
+  {
+    "id": "task-004",
+    "name": "Social Media Channel Map",
+    "status": "completed",
+    "model": "Foreman",
+    "startedAt": "2026-03-02T00:00:00-06:00",
+    "completedAt": "2026-03-02T00:00:00-06:00",
+    "notes": "Finalized at strategy/social-media-channel-map.md. All brands mapped."
+  },
+  {
+    "id": "task-003",
+    "name": "Content Pipeline Architecture",
+    "status": "completed",
+    "model": "Foreman",
+    "startedAt": "2026-03-02T00:00:00-06:00",
+    "completedAt": "2026-03-02T00:00:00-06:00",
+    "notes": "Full doc at content-pipeline-architecture.md. Plan A/B/C with cost and time estimates."
+  },
+  {
+    "id": "task-002",
+    "name": "Mission Control Dashboard",
+    "status": "completed",
+    "model": "Foreman",
+    "startedAt": "2026-03-01T16:05:00-06:00",
+    "completedAt": "2026-03-01T20:00:00-06:00",
+    "notes": "Live at http://192.168.4.24:3000. Next.js, local network accessible."
+  },
+  {
+    "id": "task-001",
+    "name": "Infrastructure Setup — Telegram, Discord, Crons",
+    "status": "completed",
+    "model": "Foreman",
+    "startedAt": "2026-02-28T00:00:00-06:00",
+    "completedAt": "2026-03-02T00:00:00-06:00",
+    "notes": "All groups live, 5 cron jobs running, Discord 5 channels active, sub-agents configured."
+  }
+]

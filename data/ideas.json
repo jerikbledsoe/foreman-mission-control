@@ -1,0 +1,47 @@
+[
+  {
+    "id": "idea-005",
+    "title": "Assisted Living Kitchen OS — White Label Partnership",
+    "pitch": "Owner paying $12K to build it wants to sell to other operators. 15,000+ underserved small operators in the US. Deal structure brief ready. Potential recurring SaaS revenue for Rock Castle.",
+    "effort": "Medium",
+    "impact": "High",
+    "status": "pending-erik",
+    "createdAt": "2026-03-04T20:13:00-06:00"
+  },
+  {
+    "id": "idea-004",
+    "title": "Nashville AI Collective — Quarterly Ticketed Events",
+    "pitch": "Erik convenes Nashville AI leaders quarterly. Ticketed. Builds authority, pipeline, and community. Phase 4 item but worth designing early.",
+    "effort": "Medium",
+    "impact": "High",
+    "status": "phase-4",
+    "createdAt": "2026-03-03T00:00:00-06:00"
+  },
+  {
+    "id": "idea-003",
+    "title": "Dowdle Solution as Repeatable Product",
+    "pitch": "The AI audit + deliverables built for Dowdle can be repackaged and sold to similar commercial contractors. Template already built. Rock Castle's first repeatable offer.",
+    "effort": "Low",
+    "impact": "High",
+    "status": "in-progress",
+    "createdAt": "2026-03-04T19:45:00-06:00"
+  },
+  {
+    "id": "idea-002",
+    "title": "Builder's Blueprint as ManyChat Lead Magnet",
+    "pitch": "12-section framework written and reviewed. Needs PDF formatting then ManyChat activation. EBB primary lead magnet. April 1 build date.",
+    "effort": "Low",
+    "impact": "High",
+    "status": "waiting",
+    "createdAt": "2026-03-04T21:00:00-06:00"
+  },
+  {
+    "id": "idea-001",
+    "title": "Pre-Recorded CTA Commercials for The Build Show",
+    "pitch": "30-60 second product spots Erik records once — Builders Society, Rock Castle audit, TTH — triggered mid-show with a button press in OBS. Phase 2 item after show rhythm is established.",
+    "effort": "Low",
+    "impact": "High",
+    "status": "phase-2",
+    "createdAt": "2026-03-03T18:30:00-06:00"
+  }
+]

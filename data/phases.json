@@ -1,0 +1,312 @@
+[
+  {
+    "phase": 1,
+    "label": "Foundation",
+    "dateRange": "Now → March 16",
+    "goal": "Get the infrastructure right. Nothing launches on a broken foundation.",
+    "items": [
+      {
+        "id": "p1-001",
+        "text": "Rock Castle AI website live (rockcastle.ai)",
+        "completed": true
+      },
+      {
+        "id": "p1-002",
+        "text": "Erik Bledsoe personal website live (erikbledsoe.co)",
+        "completed": true
+      },
+      {
+        "id": "p1-003",
+        "text": "Telegram groups configured and live",
+        "completed": true
+      },
+      {
+        "id": "p1-004",
+        "text": "Discord workspace configured — 5 channels live",
+        "completed": true
+      },
+      {
+        "id": "p1-005",
+        "text": "Sub-agents Scout and Builder configured",
+        "completed": true
+      },
+      {
+        "id": "p1-006",
+        "text": "Foreman cron jobs live (5 total)",
+        "completed": true
+      },
+      {
+        "id": "p1-007",
+        "text": "Mission Control dashboard live",
+        "completed": true
+      },
+      {
+        "id": "p1-008",
+        "text": "Content folder structure built",
+        "completed": true
+      },
+      {
+        "id": "p1-009",
+        "text": "Social media channel map finalized",
+        "completed": true
+      },
+      {
+        "id": "p1-010",
+        "text": "Content pipeline architecture documented",
+        "completed": true
+      },
+      {
+        "id": "p1-011",
+        "text": "The Build Show — AAA approval secured (Tue/Thu 2-4PM)",
+        "completed": true
+      },
+      {
+        "id": "p1-012",
+        "text": "OBS installed and configured for live shows",
+        "completed": false
+      },
+      {
+        "id": "p1-013",
+        "text": "YouTube live stream link created",
+        "completed": false
+      },
+      {
+        "id": "p1-014",
+        "text": "Stream info sent to AAA for Circle community listing",
+        "completed": false
+      },
+      {
+        "id": "p1-015",
+        "text": "Social media bios, visuals, links updated — all brands",
+        "completed": false
+      },
+      {
+        "id": "p1-016",
+        "text": "Meta Business Suite cleanup — separate ad accounts per brand",
+        "completed": false
+      },
+      {
+        "id": "p1-017",
+        "text": "LinkedIn holding pages live — Rock Castle AI + TTH",
+        "completed": false
+      },
+      {
+        "id": "p1-018",
+        "text": "Rock Castle Google Business listing claimed + optimized",
+        "completed": false
+      },
+      {
+        "id": "p1-019",
+        "text": "Multi-agent coding environment set up (Claude Code)",
+        "completed": false
+      },
+      {
+        "id": "p1-020",
+        "text": "Content pipeline tested end-to-end (Gling → Descript → Opus Clip)",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "phase": 2,
+    "label": "Launch",
+    "dateRange": "March 16 → June",
+    "goal": "The Build Show launches. Nashville ground game runs in parallel.",
+    "items": [
+      {
+        "id": "p2-001",
+        "text": "The Build Show first live episode aired",
+        "completed": false
+      },
+      {
+        "id": "p2-002",
+        "text": "First short-form clips published via Opus Clip",
+        "completed": false
+      },
+      {
+        "id": "p2-003",
+        "text": "Content publishing cadence established (2x/week)",
+        "completed": false
+      },
+      {
+        "id": "p2-004",
+        "text": "Google Sheets content catalog built and active",
+        "completed": false
+      },
+      {
+        "id": "p2-005",
+        "text": "Pre-recorded CTA commercials filmed (Builders Society, Rock Castle, TTH)",
+        "completed": false
+      },
+      {
+        "id": "p2-006",
+        "text": "TTH Friday morning live show running on separate camera setup",
+        "completed": false
+      },
+      {
+        "id": "p2-007",
+        "text": "Native social content batch filmed (10-15 short pieces)",
+        "completed": false
+      },
+      {
+        "id": "p2-008",
+        "text": "Nashville ground game active — 20 direct outreach conversations",
+        "completed": false
+      },
+      {
+        "id": "p2-009",
+        "text": "Rock Castle Google Business listing driving inbound leads",
+        "completed": false
+      },
+      {
+        "id": "p2-010",
+        "text": "AAA Accelerator alumni outreach — Builders Society invitations sent",
+        "completed": false
+      },
+      {
+        "id": "p2-011",
+        "text": "Dowdle Construction project delivered + paid",
+        "completed": false
+      },
+      {
+        "id": "p2-012",
+        "text": "Second Rock Castle client in pipeline",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "phase": 3,
+    "label": "Funnels",
+    "dateRange": "April 1 → June",
+    "goal": "ManyChat funnels live. Lead magnets converting. Community growing.",
+    "items": [
+      {
+        "id": "p3-001",
+        "text": "Builder's Blueprint PDF formatted and ready",
+        "completed": false
+      },
+      {
+        "id": "p3-002",
+        "text": "ManyChat — AI Audit activation live (Rock Castle)",
+        "completed": false
+      },
+      {
+        "id": "p3-003",
+        "text": "ManyChat — Builder's Blueprint live (EBB)",
+        "completed": false
+      },
+      {
+        "id": "p3-004",
+        "text": "ManyChat — Battle Plan live (TTH)",
+        "completed": false
+      },
+      {
+        "id": "p3-005",
+        "text": "EBB lead magnet decided and built",
+        "completed": false
+      },
+      {
+        "id": "p3-006",
+        "text": "Builders Society Skool links added to all platforms",
+        "completed": false
+      },
+      {
+        "id": "p3-007",
+        "text": "Email list growing from lead magnet downloads",
+        "completed": false
+      },
+      {
+        "id": "p3-008",
+        "text": "Hyper-targeted Meta ads running in Nashville/Middle TN → Rock Castle",
+        "completed": false
+      },
+      {
+        "id": "p3-009",
+        "text": "Builders Society MRR growing month over month",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "phase": 4,
+    "label": "Community",
+    "dateRange": "June → September",
+    "goal": "Community established. Recurring revenue floor solid. Nashville AI Collective launched.",
+    "items": [
+      {
+        "id": "p4-001",
+        "text": "Nashville AI Collective — first convening event held",
+        "completed": false
+      },
+      {
+        "id": "p4-002",
+        "text": "First quarterly ticketed training event in Nashville",
+        "completed": false
+      },
+      {
+        "id": "p4-003",
+        "text": "Builders Society hitting target MRR",
+        "completed": false
+      },
+      {
+        "id": "p4-004",
+        "text": "Rock Castle — 1 active high-ticket client ($100K+/yr)",
+        "completed": false
+      },
+      {
+        "id": "p4-005",
+        "text": "Content cadence at 4-5x/week across platforms",
+        "completed": false
+      },
+      {
+        "id": "p4-006",
+        "text": "Show clips becoming organic ad creative (highest performers)",
+        "completed": false
+      },
+      {
+        "id": "p4-007",
+        "text": "Done-with-you offer designed and priced",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "phase": 5,
+    "label": "Amplify",
+    "dateRange": "September → December",
+    "goal": "Scale what's working. Speaking, podcasts, ad scale, OTT planning.",
+    "items": [
+      {
+        "id": "p5-001",
+        "text": "Speaking — 2+ paid corporate or conference bookings",
+        "completed": false
+      },
+      {
+        "id": "p5-002",
+        "text": "Podcast guesting — 5+ appearances on relevant shows",
+        "completed": false
+      },
+      {
+        "id": "p5-003",
+        "text": "Ad spend scaled on highest-performing content",
+        "completed": false
+      },
+      {
+        "id": "p5-004",
+        "text": "Rock Castle — 2 active high-ticket clients",
+        "completed": false
+      },
+      {
+        "id": "p5-005",
+        "text": "OTT/streaming strategy defined",
+        "completed": false
+      },
+      {
+        "id": "p5-006",
+        "text": "$1M annual revenue run rate achieved",
+        "completed": false
+      }
+    ]
+  }
+]

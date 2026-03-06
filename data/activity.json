@@ -1,0 +1,112 @@
+[
+  {
+    "id": "act-025",
+    "timestamp": "2026-03-05T08:40:00-06:00",
+    "entry": "AAA Nico meeting result: Build Show approved Tue/Thu 2-4PM. Some calls public, some private. Consent protocol required. YouTube live link and Circle listing still needed."
+  },
+  {
+    "id": "act-024",
+    "timestamp": "2026-03-05T08:57:00-06:00",
+    "entry": "Phase Roadmap dashboard built \u2014 new tab in Mission Control. 5 phase columns, checkable items, progress bars, add-item per phase. Live at http://192.168.4.24:3000."
+  },
+  {
+    "id": "act-020",
+    "timestamp": "2026-03-05T08:48:00-06:00",
+    "entry": "Builder's Blueprint + Rock Castle Outreach Tracker posted to Discord in full (readable text, all sections)."
+  },
+  {
+    "id": "act-019",
+    "timestamp": "2026-03-05T08:40:00-06:00",
+    "entry": "AAA approved Build Show: Tue/Thu 2-4PM live coaching calls. Some public, some private. Consent protocol required per call. Phase 1 updated."
+  },
+  {
+    "id": "act-018",
+    "timestamp": "2026-03-05T07:00:00-06:00",
+    "entry": "Morning brief posted. Overnight output (Builder's Blueprint + Outreach Tracker) not surfaced \u2014 cron fixed to check prior day memory going forward."
+  },
+  {
+    "id": "act-017",
+    "timestamp": "2026-03-04T21:00:00-06:00",
+    "entry": "Overnight: Built Rock Castle AI Outreach Tracker (research/rock-castle-outreach-tracker.html) \u2014 13 Nashville prospects, priority tiered, first-touch messages. Built Builder's Blueprint lead magnet (content/lead-magnets/builders-blueprint.md) \u2014 12-section framework, ~3,000 words, CTA to Builders Society."
+  },
+  {
+    "id": "act-016",
+    "timestamp": "2026-03-04T20:13:00-06:00",
+    "entry": "Assisted Living Kitchen OS deal brief complete \u2014 research/2026-03-04-assisted-living-kitchen-os-deal-brief.md. Market pricing, IP terms, revenue splits, conversation prep for owner meeting."
+  },
+  {
+    "id": "act-015",
+    "timestamp": "2026-03-04T19:40:00-06:00",
+    "entry": "Erik approved overnight tasks: Rock Castle outreach tracker + Builder's Blueprint lead magnet."
+  },
+  {
+    "id": "act-014",
+    "timestamp": "2026-03-04T08:00:00-06:00",
+    "entry": "Overnight cron split into 7PM pitch + 9PM execution. Morning brief updated to post Discord output before sending. Fixes overnight Discord notification issue."
+  },
+  {
+    "id": "act-013",
+    "timestamp": "2026-03-04T07:00:00-06:00",
+    "entry": "Morning brief posted. Quote: Confucius \u2014 'The man who moves a mountain begins by carrying away small stones.'"
+  },
+  {
+    "id": "act-012",
+    "timestamp": "2026-03-03T21:00:00-06:00",
+    "entry": "Overnight work (pre-split cron): Rock Castle Nashville prospect research \u2014 13 prospects identified, competitive landscape mapped, outreach sequence recommended. Saved to research/2026-03-03-rock-castle-nashville-prospects.md."
+  },
+  {
+    "id": "act-011",
+    "timestamp": "2026-03-03T18:54:00-06:00",
+    "entry": "The Build Show format confirmed: two-part (live AAA coaching + teaching segment). OBS \u2192 YouTube. Equipment installed: monitor/teleprompter."
+  },
+  {
+    "id": "act-010",
+    "timestamp": "2026-03-03T14:00:00-06:00",
+    "entry": "Cost optimization: switched to Option D (noon + 7PM compression + MEMORY.md pruning). Noon compression cron added. MEMORY.md trimmed ~35%."
+  },
+  {
+    "id": "act-009",
+    "timestamp": "2026-03-03T12:18:00-06:00",
+    "entry": "Dowdle Construction: developer brief revised and resent. New bid structure requested. Presentation to Dowdle scheduled Wednesday March 11."
+  },
+  {
+    "id": "act-008",
+    "timestamp": "2026-03-03T10:00:00-06:00",
+    "entry": "ManyChat lead magnet research complete \u2014 research/2026-03-03-manychat-lead-magnets.md. Build scheduled April 1."
+  },
+  {
+    "id": "act-007",
+    "timestamp": "2026-03-03T09:00:00-06:00",
+    "entry": "Phase Roadmap approved and saved \u2014 strategy/phase-roadmap.md. $1M by end of 2026. 5 phases, Jerusalem model."
+  },
+  {
+    "id": "act-006",
+    "timestamp": "2026-03-02T20:00:00-06:00",
+    "entry": "Social media channel map finalized \u2014 strategy/social-media-channel-map.md. All brands mapped across YouTube, LinkedIn, Instagram, Facebook."
+  },
+  {
+    "id": "act-005",
+    "timestamp": "2026-03-02T14:00:00-06:00",
+    "entry": "Session compressed (context 71% full, $12.85 spent). MEMORY.md fully updated. Nightly compression now standard."
+  },
+  {
+    "id": "act-004",
+    "timestamp": "2026-03-02T10:00:00-06:00",
+    "entry": "Content pipeline architecture doc complete \u2014 content-pipeline-architecture.md. Plan A/B/C with cost estimates."
+  },
+  {
+    "id": "act-003",
+    "timestamp": "2026-03-01T20:00:00-06:00",
+    "entry": "Mission Control dashboard live at http://192.168.4.24:3000. Task board, activity log, idea queue."
+  },
+  {
+    "id": "act-002",
+    "timestamp": "2026-03-01T12:00:00-06:00",
+    "entry": "Discord workspace configured \u2014 5 channels live. Sub-agents Scout and Builder configured in OpenClaw."
+  },
+  {
+    "id": "act-001",
+    "timestamp": "2026-02-28T12:00:00-06:00",
+    "entry": "Foreman online. Workspace initialized. Telegram groups, cron jobs, knowledge pack loaded. Named by Erik Bledsoe."
+  }
+]

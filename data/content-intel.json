@@ -1,0 +1,44 @@
+[
+  {
+    "id": "ci-sample-001",
+    "brand": "TTH",
+    "week": "2026-W10",
+    "source": "Reddit",
+    "sourceDetail": "r/AskMenOver30",
+    "type": "Raw Question",
+    "rawFinding": "I go to church every Sunday, lead a small group, and feel completely spiritually empty. Is this normal or am I broken?",
+    "link": "https://reddit.com/r/AskMenOver30",
+    "hookSuggestion": "What to do when you're doing everything right and feel nothing",
+    "angle": "Scripture + story — the difference between religious activity and encounter",
+    "format": "60-sec talking head",
+    "addedAt": "2026-03-03T06:00:00-06:00"
+  },
+  {
+    "id": "ci-sample-002",
+    "brand": "TTH",
+    "week": "2026-W10",
+    "source": "Influencer Watch",
+    "sourceDetail": "Josh Howerton — YouTube",
+    "type": "Outlier Content",
+    "rawFinding": "Video on 'Why men are leaving the church' — 380K views vs. his 40K average. 9.5x above baseline.",
+    "link": "https://youtube.com/@joshhowerton",
+    "hookSuggestion": "Here's what I'd add to what Josh just said about men leaving the church",
+    "angle": "Green screen react + TTH Brotherhood as the answer",
+    "format": "60-sec Reel",
+    "addedAt": "2026-03-03T06:00:00-06:00"
+  },
+  {
+    "id": "ci-sample-003",
+    "brand": "EBB",
+    "week": "2026-W10",
+    "source": "Reddit",
+    "sourceDetail": "r/entrepreneur",
+    "type": "Raw Question",
+    "rawFinding": "I built a $500K business and feel like a fraud every single day. When does that go away?",
+    "link": "https://reddit.com/r/entrepreneur",
+    "hookSuggestion": "The impostor syndrome nobody talks about when you actually succeed",
+    "angle": "Story + framework — identity rooted in calling vs. results",
+    "format": "60-sec talking head",
+    "addedAt": "2026-03-03T06:00:00-06:00"
+  }
+]
