@@ -281,7 +281,7 @@ export default function MissionControl() {
   async function fetchAll() {
     try {
       const results = await Promise.all([
-        getSb().from('tasks').select('*'),
+        getSb().from('tasks').select('*').order('completedAt', { ascending: false, nullsFirst: false }),
         getSb().from('activity').select('*').order('timestamp', { ascending: false }).limit(50),
         getSb().from('ideas').select('*'),
         getSb().from('phases').select('*'),
@@ -371,7 +371,13 @@ export default function MissionControl() {
     ))
   }
 
-  const byStatus = (s: string) => tasks.filter(t => t.status === s)
+  const byStatus = (s: string) => tasks
+    .filter(t => t.status === s)
+    .sort((a, b) => {
+      const dateA = a.completedAt || a.startedAt || ''
+      const dateB = b.completedAt || b.startedAt || ''
+      return dateB.localeCompare(dateA)
+    })
 
   if (loading) return (
     <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
