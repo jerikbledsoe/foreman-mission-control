@@ -3,8 +3,15 @@ import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Allow all API routes to pass through unauthenticated (used by cron jobs)
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next()
+  }
+
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
-  const isLoginPage = request.nextUrl.pathname === '/login'
+  const isLoginPage = pathname === '/login'
 
   if (!token && !isLoginPage) {
     const loginUrl = new URL('/login', request.url)
@@ -19,5 +26,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api/|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }
