@@ -698,27 +698,29 @@ export default function MissionControl() {
                   .map(row => (
                     <tr key={row.id} className="hover:bg-zinc-800/50 transition-colors group">
                       <td className="py-3 pr-4 text-zinc-500 font-mono whitespace-nowrap">{row.week}</td>
-                      <td className="py-3 pr-4">
+                      <td className="py-3 pr-4 min-w-[160px]">
                         <div className="space-y-1">
                           <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${SOURCE_COLORS[row.source] || 'bg-zinc-700 text-zinc-300'}`}>
                             {row.source}
                           </span>
-                          <div className="text-zinc-600 text-xs">{row.sourceDetail}</div>
+                          {row.link ? (
+                            <a href={row.link} target="_blank" rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-xs transition-colors mt-0.5">
+                              <ExternalLink className="w-3 h-3 shrink-0" />
+                              <span className="truncate max-w-[140px]">{row.sourceDetail || row.link}</span>
+                            </a>
+                          ) : (
+                            <div className="text-zinc-500 text-xs mt-0.5">{row.sourceDetail}</div>
+                          )}
                         </div>
                       </td>
                       <td className="py-3 pr-4">
                         <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[row.type] || 'bg-zinc-700 text-zinc-300'}`}>
-                          {row.type}
+                          {row.type || 'Scout'}
                         </span>
                       </td>
                       <td className="py-3 pr-4 max-w-xs">
                         <p className="text-zinc-200 leading-relaxed italic">"{row.rawFinding}"</p>
-                        {row.link && (
-                          <a href={row.link} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-zinc-500 hover:text-blue-400 mt-1 transition-colors">
-                            <ExternalLink className="w-3 h-3" /> View source
-                          </a>
-                        )}
                       </td>
                       <td className="py-3 pr-4 max-w-xs">
                         <p className="text-zinc-300 font-medium leading-snug">{row.hookSuggestion}</p>
