@@ -70,8 +70,9 @@ const SOURCE_COLORS: Record<string, string> = {
 
 const TYPE_COLORS: Record<string, string> = {
   'Raw Question': 'bg-yellow-900/50 text-yellow-300',
-  'Outlier Content': 'bg-green-900/50 text-green-300',
+  'Breakout': 'bg-orange-900/50 text-orange-300',
   'Trend': 'bg-blue-900/50 text-blue-300',
+  'Scout': 'bg-purple-900/50 text-purple-300',
   'Cultural Moment': 'bg-pink-900/50 text-pink-300',
 }
 
@@ -614,7 +615,7 @@ export default function MissionControl() {
             <div className="flex items-center gap-2">
               <Brain className="w-5 h-5 text-purple-400" />
               <h2 className="text-base font-bold uppercase tracking-widest text-zinc-300">Content Intelligence</h2>
-              <span className="text-xs text-zinc-500 ml-2">Updated every Monday 6AM + daily outlier scan</span>
+              <span className="text-xs text-zinc-500 ml-2">Updated daily 5AM (Breakouts + Trends) + Monday 6AM (Scout)</span>
             </div>
             {/* Batch + Filters */}
             <div className="flex items-center gap-3">
