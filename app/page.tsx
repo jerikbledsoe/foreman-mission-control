@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { Clock, Zap, Lightbulb, CheckCircle2, Loader2, AlertCircle, Circle, RefreshCw, Map, Plus, Check, Brain, ExternalLink, Trash2, LogOut } from 'lucide-react'
+import { Clock, Zap, Lightbulb, CheckCircle2, Loader2, AlertCircle, Circle, RefreshCw, Map, Plus, Check, Brain, ExternalLink, Trash2, LogOut, ChevronDown, ChevronRight, RotateCcw } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 
 type Task = {
@@ -58,6 +58,7 @@ type ContentIntelRow = {
   angle: string
   format: string
   addedAt: string
+  deleted?: boolean | null
 }
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -72,8 +73,14 @@ const TYPE_COLORS: Record<string, string> = {
   'Raw Question': 'bg-yellow-900/50 text-yellow-300',
   'Breakout': 'bg-orange-900/50 text-orange-300',
   'Trend': 'bg-blue-900/50 text-blue-300',
+  'Monday Intel': 'bg-purple-900/50 text-purple-300',
   'Scout': 'bg-purple-900/50 text-purple-300',
   'Cultural Moment': 'bg-pink-900/50 text-pink-300',
+}
+
+function normalizeType(type: string): string {
+  if (type === 'Scout') return 'Monday Intel'
+  return type
 }
 
 function fmt(ts: string | null) {
@@ -83,6 +90,33 @@ function fmt(ts: string | null) {
     hour: 'numeric', minute: '2-digit',
     hour12: true, timeZone: 'America/Chicago'
   })
+}
+
+function parseWeekLabel(weekStr: string): string {
+  const match = weekStr.match(/^(\d{4})-W(\d+)$/)
+  if (!match) return weekStr
+  const year = parseInt(match[1])
+  const week = parseInt(match[2])
+  const jan4 = new Date(year, 0, 4)
+  const startOfWeek1 = new Date(jan4)
+  startOfWeek1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7))
+  const startDate = new Date(startOfWeek1)
+  startDate.setDate(startOfWeek1.getDate() + (week - 1) * 7)
+  const endDate = new Date(startDate)
+  endDate.setDate(startDate.getDate() + 6)
+  const startStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  const endStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return `Week ${week} — ${startStr}–${endStr}`
+}
+
+function getCurrentWeek(): string {
+  const now = new Date()
+  const jan4 = new Date(now.getFullYear(), 0, 4)
+  const startOfWeek1 = new Date(jan4)
+  startOfWeek1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7))
+  const diff = now.getTime() - startOfWeek1.getTime()
+  const week = Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1
+  return `${now.getFullYear()}-W${week}`
 }
 
 function StatusIcon({ status }: { status: string }) {
@@ -110,7 +144,7 @@ function ImpactBadge({ label, value }: { label: string; value: string }) {
 function Column({ title, tasks, color }: { title: string; tasks: Task[]; color: string }) {
   return (
     <div className="flex-1 min-w-0">
-      <div className={`flex items-center gap-2 mb-3 pb-2 border-b border-zinc-700`}>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b border-zinc-700">
         <span className={`w-2 h-2 rounded-full ${color}`} />
         <h3 className="text-sm font-semibold text-zinc-300 uppercase tracking-wider">{title}</h3>
         <span className="ml-auto text-xs text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full">{tasks.length}</span>
@@ -170,7 +204,6 @@ function PhaseColumn({ phase, colors, onToggle, onAdd }: {
 
   return (
     <div className={`flex flex-col rounded-xl border ${colors.border} ${colors.bg} min-w-[240px] max-w-[280px] flex-shrink-0`}>
-      {/* Phase Header */}
       <div className="p-4 border-b border-zinc-700/50">
         <div className="flex items-center gap-2 mb-1">
           <span className={`w-2.5 h-2.5 rounded-full ${colors.dot}`} />
@@ -180,7 +213,6 @@ function PhaseColumn({ phase, colors, onToggle, onAdd }: {
         <h3 className="text-base font-bold text-zinc-100">{phase.label}</h3>
         <p className="text-xs text-zinc-500 mt-0.5">{phase.dateRange}</p>
         <p className="text-xs text-zinc-400 mt-2 leading-relaxed">{phase.goal}</p>
-        {/* Progress bar */}
         <div className="mt-3 h-1.5 bg-zinc-700 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${colors.dot}`}
@@ -190,7 +222,6 @@ function PhaseColumn({ phase, colors, onToggle, onAdd }: {
         <p className="text-xs text-zinc-600 mt-1">{done} of {total} complete</p>
       </div>
 
-      {/* Items */}
       <div className="flex-1 p-3 space-y-1.5 overflow-y-auto max-h-[500px]">
         {phase.items.map(item => (
           <button
@@ -209,7 +240,6 @@ function PhaseColumn({ phase, colors, onToggle, onAdd }: {
           </button>
         ))}
 
-        {/* Add item */}
         {adding ? (
           <div className="pt-1">
             <input
@@ -240,6 +270,58 @@ function PhaseColumn({ phase, colors, onToggle, onAdd }: {
 
 type BatchItem = ContentIntelRow & { erikNote: string; queuedAt: string }
 
+function FilterBubble({ label, active, onClick, color }: { label: string; active: boolean; onClick: () => void; color?: string }) {
+  const activeClass = color || 'bg-zinc-500 text-white'
+  return (
+    <button
+      onClick={onClick}
+      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors border
+        ${active
+          ? `${activeClass} border-transparent`
+          : 'bg-transparent border-zinc-600 text-zinc-400 hover:border-zinc-400 hover:text-zinc-200'
+        }`}
+    >
+      {label}
+    </button>
+  )
+}
+
+function WeekGroup({
+  weekKey,
+  rows,
+  defaultExpanded,
+  children,
+}: {
+  weekKey: string
+  rows: ContentIntelRow[]
+  defaultExpanded: boolean
+  children: React.ReactNode
+}) {
+  const [expanded, setExpanded] = useState(defaultExpanded)
+  const label = parseWeekLabel(weekKey)
+
+  return (
+    <div className="mb-4">
+      <button
+        onClick={() => setExpanded(e => !e)}
+        className="w-full flex items-center gap-2 py-2 px-3 bg-zinc-800/60 hover:bg-zinc-800 rounded-lg border border-zinc-700 transition-colors text-left"
+      >
+        {expanded
+          ? <ChevronDown className="w-4 h-4 text-zinc-500 shrink-0" />
+          : <ChevronRight className="w-4 h-4 text-zinc-500 shrink-0" />
+        }
+        <span className="text-sm font-semibold text-zinc-200">{label}</span>
+        <span className="ml-auto text-xs text-zinc-500 bg-zinc-700 px-2 py-0.5 rounded-full">{rows.length} items</span>
+      </button>
+      {expanded && (
+        <div className="mt-1 border border-zinc-800 rounded-lg overflow-hidden">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function MissionControl() {
   const [tab, setTab] = useState<'tasks' | 'phases' | 'intel'>('tasks')
   const [tasks, setTasks] = useState<Task[]>([])
@@ -247,14 +329,23 @@ export default function MissionControl() {
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [phases, setPhases] = useState<Phase[]>([])
   const [intel, setIntel] = useState<ContentIntelRow[]>([])
+  const [trashRows, setTrashRows] = useState<ContentIntelRow[]>([])
   const [batch, setBatch] = useState<BatchItem[]>([])
-  const [intelBrand, setIntelBrand] = useState<'TTH' | 'EBB'>('TTH')
-  const [intelWeek, setIntelWeek] = useState<string>('all')
+
+  const [filterTypes, setFilterTypes] = useState<string[]>([])
+  const [filterBrands, setFilterBrands] = useState<string[]>([])
+  const [filterSources, setFilterSources] = useState<string[]>([])
+
   const [showBatch, setShowBatch] = useState(false)
   const [sendingBatch, setSendingBatch] = useState(false)
   const [batchSent, setBatchSent] = useState(false)
+  const [showTrash, setShowTrash] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [confirmEmptyTrash, setConfirmEmptyTrash] = useState(false)
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [loading, setLoading] = useState(true)
+
   const sbRef = useRef<SupabaseClient | null>(null)
   function getSb() {
     if (!sbRef.current) {
@@ -266,17 +357,9 @@ export default function MissionControl() {
     return sbRef.current
   }
 
-  async function fetchWithTimeout(url: string, ms = 8000) {
-    const controller = new AbortController()
-    const id = setTimeout(() => controller.abort(), ms)
-    try {
-      const res = await fetch(url, { signal: controller.signal })
-      clearTimeout(id)
-      return res.json()
-    } catch {
-      clearTimeout(id)
-      return []
-    }
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(null), 4000)
   }
 
   async function fetchAll() {
@@ -286,16 +369,17 @@ export default function MissionControl() {
         getSb().from('activity').select('*').order('timestamp', { ascending: false }).limit(50),
         getSb().from('ideas').select('*'),
         getSb().from('phases').select('*'),
-        getSb().from('content_intel').select('*').order('addedAt', { ascending: false }),
+        getSb().from('content_intel').select('*').or('deleted.is.null,deleted.eq.false').order('addedAt', { ascending: false }),
+        getSb().from('content_intel').select('*').eq('deleted', true),
         getSb().from('batch_queue').select('*'),
       ])
-      const [t, a, i, p, ci, bq] = results
-      console.log('Supabase results:', results.map(r => ({ data: r.data?.length, error: r.error })))
+      const [t, a, i, p, ci, tr, bq] = results
       setTasks(t.data || [])
       setActivity(a.data || [])
       setIdeas((i.data || []).map((idea: any) => ({ ...idea, pitch: idea.description || idea.pitch || '', effort: idea.effort || 'medium', impact: idea.impact || 'medium' })))
       setPhases((p.data || []).map((ph: any) => ({ ...ph, items: ph.milestones || ph.items || [] })))
       setIntel(ci.data || [])
+      setTrashRows(tr.data || [])
       setBatch(bq.data || [])
       setLastRefresh(new Date())
     } catch(e) {
@@ -340,6 +424,38 @@ export default function MissionControl() {
     setTimeout(() => setBatchSent(false), 5000)
   }
 
+  async function softDelete(id: string) {
+    const { error } = await getSb().from('content_intel').update({ deleted: true }).eq('id', id)
+    if (error) {
+      showToast('Delete failed. Run in Supabase: alter table content_intel add column if not exists deleted boolean default false;')
+      return
+    }
+    const row = intel.find(r => r.id === id)
+    if (row) setTrashRows(prev => [{ ...row, deleted: true }, ...prev])
+    setIntel(prev => prev.filter(r => r.id !== id))
+    setConfirmDeleteId(null)
+    showToast('Moved to trash')
+  }
+
+  async function restoreRow(id: string) {
+    const { error } = await getSb().from('content_intel').update({ deleted: false }).eq('id', id)
+    if (error) { showToast('Restore failed'); return }
+    const row = trashRows.find(r => r.id === id)
+    if (row) setIntel(prev => [{ ...row, deleted: false }, ...prev])
+    setTrashRows(prev => prev.filter(r => r.id !== id))
+    showToast('Row restored')
+  }
+
+  async function emptyTrash() {
+    const ids = trashRows.map(r => r.id)
+    if (ids.length === 0) return
+    const { error } = await getSb().from('content_intel').delete().in('id', ids)
+    if (error) { showToast('Empty trash failed'); return }
+    setTrashRows([])
+    setConfirmEmptyTrash(false)
+    showToast('Trash emptied permanently')
+  }
+
   useEffect(() => {
     fetchAll()
     const interval = setInterval(fetchAll, 60000)
@@ -380,6 +496,32 @@ export default function MissionControl() {
       return dateB.localeCompare(dateA)
     })
 
+  function toggleFilter(current: string[], value: string, set: (v: string[]) => void) {
+    if (value === 'all') { set([]); return }
+    if (current.includes(value)) set(current.filter(v => v !== value))
+    else set([...current, value])
+  }
+
+  const filteredIntel = intel.filter(r => {
+    const typeMatch = filterTypes.length === 0 || filterTypes.includes(normalizeType(r.type))
+    const brandMatch = filterBrands.length === 0 || filterBrands.includes(r.brand)
+    const sourceMatch = filterSources.length === 0 || filterSources.includes(r.source)
+    return typeMatch && brandMatch && sourceMatch
+  })
+
+  const allSources = Array.from(new Set(intel.map(r => r.source))).sort()
+
+  const currentWeek = getCurrentWeek()
+  const weekGroups = (() => {
+    const groups: Record<string, ContentIntelRow[]> = {}
+    for (const row of filteredIntel) {
+      const w = row.week || 'Unknown'
+      if (!groups[w]) groups[w] = []
+      groups[w].push(row)
+    }
+    return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a))
+  })()
+
   if (loading) return (
     <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
       <div className="flex items-center gap-3 text-zinc-400">
@@ -391,7 +533,12 @@ export default function MissionControl() {
 
   return (
     <div className="min-h-screen bg-zinc-900 text-zinc-100 font-sans">
-      {/* Header */}
+      {toastMsg && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-700 border border-zinc-600 text-zinc-100 text-sm px-5 py-3 rounded-xl shadow-xl max-w-lg text-center">
+          {toastMsg}
+        </div>
+      )}
+
       <div className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between sticky top-0 bg-zinc-900 z-10">
         <div className="flex items-center gap-3">
           <span className="text-xl">🔑</span>
@@ -401,7 +548,6 @@ export default function MissionControl() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          {/* Tabs */}
           <div className="flex items-center bg-zinc-800 rounded-lg p-1 gap-1">
             <button
               onClick={() => setTab('tasks')}
@@ -431,16 +577,15 @@ export default function MissionControl() {
             </button>
           </div>
           <span className="text-xs text-zinc-600">Refreshed {fmt(lastRefresh.toISOString())}</span>
-            <button onClick={() => signOut()} className="text-zinc-600 hover:text-zinc-400 transition-colors ml-2" title="Sign out">
-              <LogOut className="w-4 h-4" />
-            </button>
+          <button onClick={() => signOut()} className="text-zinc-600 hover:text-zinc-400 transition-colors ml-2" title="Sign out">
+            <LogOut className="w-4 h-4" />
+          </button>
           <button onClick={fetchAll} className="text-zinc-500 hover:text-zinc-300 transition-colors">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Task Board Tab */}
       {tab === 'tasks' && (
         <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-10">
           <section>
@@ -508,7 +653,6 @@ export default function MissionControl() {
         </div>
       )}
 
-      {/* Phase Roadmap Tab */}
       {tab === 'phases' && (
         <div className="px-6 py-8">
           <div className="flex items-center gap-2 mb-6">
@@ -516,7 +660,6 @@ export default function MissionControl() {
             <h2 className="text-base font-bold uppercase tracking-widest text-zinc-300">Phase Roadmap — $1M by End of 2026</h2>
           </div>
 
-          {/* Overall progress */}
           <div className="mb-8 bg-zinc-800 border border-zinc-700 rounded-xl p-4 flex items-center gap-6 flex-wrap">
             {phases.map((p, idx) => {
               const done = p.items.filter(i => i.completed).length
@@ -536,7 +679,6 @@ export default function MissionControl() {
             </div>
           </div>
 
-          {/* Phase columns — horizontal scroll */}
           <div className="flex gap-4 overflow-x-auto pb-6">
             {phases.map((phase, idx) => (
               <PhaseColumn
@@ -551,18 +693,15 @@ export default function MissionControl() {
         </div>
       )}
 
-      {/* Content Intel Tab */}
       {tab === 'intel' && (
         <div className="px-6 py-8">
 
-          {/* Batch sent confirmation */}
           {batchSent && (
             <div className="mb-4 bg-green-900/50 border border-green-600 rounded-xl px-4 py-3 flex items-center gap-2 text-green-300 text-sm">
               <CheckCircle2 className="w-4 h-4" /> Batch sent to Foreman — drafts will be written to your Google Sheets shortly.
             </div>
           )}
 
-          {/* Batch Queue Drawer */}
           {showBatch && (
             <div className="mb-6 bg-zinc-800 border border-yellow-600/50 rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
@@ -611,13 +750,13 @@ export default function MissionControl() {
             </div>
           )}
 
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-5 flex-wrap gap-4">
             <div className="flex items-center gap-2">
               <Brain className="w-5 h-5 text-purple-400" />
               <h2 className="text-base font-bold uppercase tracking-widest text-zinc-300">Content Intelligence</h2>
-              <span className="text-xs text-zinc-500 ml-2">Updated daily 5AM (Breakouts + Trends) + Monday 6AM (Scout)</span>
+              <span className="text-xs text-zinc-500 ml-2">Updated daily 5AM (Breakouts + Trends) + Monday 6AM (Monday Intel)</span>
             </div>
-            {/* Batch + Filters */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowBatch(!showBatch)}
@@ -626,153 +765,233 @@ export default function MissionControl() {
               >
                 📋 Batch Queue {batch.length > 0 && `(${batch.length})`}
               </button>
-              {/* Brand toggle */}
-              <div className="flex items-center bg-zinc-800 rounded-lg p-1 gap-1">
-                <button
-                  onClick={() => setIntelBrand('TTH')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors
-                    ${intelBrand === 'TTH' ? 'bg-blue-700 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-                >
-                  Take the Hill
-                </button>
-                <button
-                  onClick={() => setIntelBrand('EBB')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors
-                    ${intelBrand === 'EBB' ? 'bg-green-700 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-                >
-                  Erik Bledsoe Brand
-                </button>
-              </div>
-              {/* Week filter */}
-              <select
-                value={intelWeek}
-                onChange={e => setIntelWeek(e.target.value)}
-                className="text-xs bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-lg px-3 py-1.5 focus:outline-none"
+              <button
+                onClick={() => setShowTrash(s => !s)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border
+                  ${showTrash ? 'bg-red-900/60 text-red-300 border-red-700' : 'text-zinc-500 hover:text-zinc-300 border-zinc-700'}`}
               >
-                <option value="all">All weeks</option>
-                {Array.from(new Set(intel.map(r => r.week))).sort().reverse().map(w => (
-                  <option key={w} value={w}>{w}</option>
-                ))}
-              </select>
+                <Trash2 className="w-3.5 h-3.5" />
+                Trash {trashRows.length > 0 && `(${trashRows.length})`}
+              </button>
             </div>
           </div>
 
-          {/* Stats bar */}
-          {(() => {
-            const filtered = intel.filter(r =>
-              r.brand === intelBrand && (intelWeek === 'all' || r.week === intelWeek)
-            )
-            const bySource = filtered.reduce((acc: Record<string,number>, r) => {
-              acc[r.source] = (acc[r.source] || 0) + 1
-              return acc
-            }, {})
-            return (
-              <div className="mb-6 flex items-center gap-4 flex-wrap">
-                <span className="text-xs text-zinc-500">{filtered.length} rows</span>
-                {Object.entries(bySource).map(([src, count]) => (
-                  <span key={src} className={`text-xs px-2 py-0.5 rounded-full ${SOURCE_COLORS[src] || 'bg-zinc-700 text-zinc-300'}`}>
-                    {src}: {count}
-                  </span>
-                ))}
+          {/* Trash view */}
+          {showTrash && (
+            <div className="mb-8 bg-zinc-900 border border-red-800/40 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-red-400 font-bold text-sm flex items-center gap-2">
+                  <Trash2 className="w-4 h-4" /> Trash — {trashRows.length} soft-deleted item{trashRows.length !== 1 ? 's' : ''}
+                </span>
+                {trashRows.length > 0 && (
+                  confirmEmptyTrash ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-zinc-400">Permanently delete all?</span>
+                      <button onClick={emptyTrash} className="text-xs px-3 py-1 bg-red-700 hover:bg-red-600 text-white rounded-lg font-bold">Yes, empty trash</button>
+                      <button onClick={() => setConfirmEmptyTrash(false)} className="text-xs text-zinc-500 hover:text-zinc-300">Cancel</button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmEmptyTrash(true)}
+                      className="text-xs px-3 py-1.5 bg-zinc-800 hover:bg-red-900/40 text-zinc-400 hover:text-red-400 border border-zinc-700 rounded-lg transition-colors"
+                    >
+                      Empty Trash
+                    </button>
+                  )
+                )}
               </div>
-            )
-          })()}
-
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-zinc-700">
-                  <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-4 font-medium w-24">Week</th>
-                  <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-4 font-medium w-28">Source</th>
-                  <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-4 font-medium w-24">Type</th>
-                  <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-4 font-medium">Raw Finding</th>
-                  <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-4 font-medium">Hook</th>
-                  <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-4 font-medium w-32">Format</th>
-                  <th className="text-left text-zinc-500 uppercase tracking-wider py-2 font-medium w-8"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800">
-                {intel
-                  .filter(r => r.brand === intelBrand && (intelWeek === 'all' || r.week === intelWeek))
-                  .map(row => (
-                    <tr key={row.id} className="hover:bg-zinc-800/50 transition-colors group">
-                      <td className="py-3 pr-4 text-zinc-500 font-mono whitespace-nowrap">{row.week}</td>
-                      <td className="py-3 pr-4 min-w-[160px]">
-                        <div className="space-y-1">
-                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${SOURCE_COLORS[row.source] || 'bg-zinc-700 text-zinc-300'}`}>
-                            {row.source}
-                          </span>
-                          {row.link ? (
-                            <a href={row.link} target="_blank" rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-xs transition-colors mt-0.5">
-                              <ExternalLink className="w-3 h-3 shrink-0" />
-                              <span className="truncate max-w-[140px]">{row.sourceDetail || row.link}</span>
-                            </a>
-                          ) : (
-                            <div className="text-zinc-500 text-xs mt-0.5">{row.sourceDetail}</div>
-                          )}
+              {trashRows.length === 0 ? (
+                <p className="text-center text-zinc-600 text-xs py-8">Trash is empty.</p>
+              ) : (
+                <div className="space-y-2">
+                  {trashRows.map(row => (
+                    <div key={row.id} className="bg-zinc-800/40 border border-zinc-700 rounded-lg p-3 flex items-start gap-3 opacity-70">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${row.brand === 'TTH' ? 'bg-blue-900 text-blue-300' : 'bg-green-900 text-green-300'}`}>{row.brand}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${SOURCE_COLORS[row.source] || 'bg-zinc-700 text-zinc-300'}`}>{row.source}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${TYPE_COLORS[normalizeType(row.type)] || 'bg-zinc-700 text-zinc-300'}`}>{normalizeType(row.type)}</span>
+                          <span className="text-xs text-zinc-600">{row.week}</span>
                         </div>
-                      </td>
-                      <td className="py-3 pr-4">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[row.type] || 'bg-zinc-700 text-zinc-300'}`}>
-                          {row.type || 'Scout'}
-                        </span>
-                      </td>
-                      <td className="py-3 pr-4 max-w-xs">
-                        <p className="text-zinc-200 leading-relaxed italic">"{row.rawFinding}"</p>
-                      </td>
-                      <td className="py-3 pr-4 max-w-xs">
-                        <p className="text-zinc-300 font-medium leading-snug">{row.hookSuggestion}</p>
-                        <p className="text-zinc-500 mt-1">{row.angle}</p>
-                      </td>
-                      <td className="py-3 pr-4">
-                        <span className="text-zinc-400 bg-zinc-800 px-2 py-1 rounded text-xs">{row.format}</span>
-                      </td>
-                      <td className="py-3">
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                          {batch.find(b => b.id === row.id) ? (
-                            <button
-                              onClick={() => removeFromBatch(row.id)}
-                              className="text-xs px-2 py-1 bg-yellow-600 hover:bg-yellow-500 text-zinc-900 font-bold rounded transition-colors whitespace-nowrap"
-                            >
-                              ✓ Queued
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => addToBatch(row.id)}
-                              className="text-xs px-2 py-1 bg-zinc-700 hover:bg-yellow-500 hover:text-zinc-900 text-zinc-300 font-medium rounded transition-colors whitespace-nowrap"
-                            >
-                              + Batch
-                            </button>
-                          )}
-                          <button
-                            onClick={async () => {
-                              await fetch('/api/content-intel', {
-                                method: 'DELETE',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ id: row.id })
-                              })
-                              setIntel(prev => prev.filter(r => r.id !== row.id))
-                            }}
-                            className="text-zinc-600 hover:text-red-400 transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                        <p className="text-xs text-zinc-400 italic">"{row.rawFinding}"</p>
+                      </div>
+                      <button
+                        onClick={() => restoreRow(row.id)}
+                        className="shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 rounded-lg transition-colors"
+                      >
+                        <RotateCcw className="w-3 h-3" /> Restore
+                      </button>
+                    </div>
                   ))}
-              </tbody>
-            </table>
-            {intel.filter(r => r.brand === intelBrand && (intelWeek === 'all' || r.week === intelWeek)).length === 0 && (
-              <div className="text-center py-16 text-zinc-600">
-                <Brain className="w-8 h-8 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">No intel yet for this brand/week.</p>
-                <p className="text-xs mt-1">Scout runs every Monday at 6AM.</p>
+                </div>
+              )}
+              <p className="mt-4 text-xs text-zinc-600">
+                💡 If trash is not working, run in Supabase SQL editor:{' '}
+                <code className="bg-zinc-800 px-2 py-0.5 rounded text-zinc-400">alter table content_intel add column if not exists deleted boolean default false;</code>
+              </p>
+            </div>
+          )}
+
+          {/* Filter bubbles */}
+          <div className="mb-5 space-y-2.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-zinc-600 w-14 shrink-0">Type</span>
+              <FilterBubble label="All" active={filterTypes.length === 0} onClick={() => setFilterTypes([])} color="bg-zinc-500 text-white" />
+              {['Breakout', 'Trend', 'Monday Intel', 'Raw Question', 'Cultural Moment'].map(t => (
+                <FilterBubble
+                  key={t} label={t}
+                  active={filterTypes.includes(t)}
+                  onClick={() => toggleFilter(filterTypes, t, setFilterTypes)}
+                  color={
+                    t === 'Breakout' ? 'bg-orange-700 text-orange-100' :
+                    t === 'Trend' ? 'bg-blue-700 text-blue-100' :
+                    t === 'Monday Intel' ? 'bg-purple-700 text-purple-100' :
+                    t === 'Raw Question' ? 'bg-yellow-700 text-yellow-100' :
+                    'bg-pink-800 text-pink-100'
+                  }
+                />
+              ))}
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-zinc-600 w-14 shrink-0">Brand</span>
+              <FilterBubble label="All" active={filterBrands.length === 0} onClick={() => setFilterBrands([])} color="bg-zinc-500 text-white" />
+              <FilterBubble label="TTH" active={filterBrands.includes('TTH')} onClick={() => toggleFilter(filterBrands, 'TTH', setFilterBrands)} color="bg-blue-700 text-blue-100" />
+              <FilterBubble label="EBB" active={filterBrands.includes('EBB')} onClick={() => toggleFilter(filterBrands, 'EBB', setFilterBrands)} color="bg-green-700 text-green-100" />
+            </div>
+            {allSources.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-zinc-600 w-14 shrink-0">Source</span>
+                <FilterBubble label="All" active={filterSources.length === 0} onClick={() => setFilterSources([])} color="bg-zinc-500 text-white" />
+                {allSources.map(src => (
+                  <FilterBubble
+                    key={src} label={src}
+                    active={filterSources.includes(src)}
+                    onClick={() => toggleFilter(filterSources, src, setFilterSources)}
+                    color={
+                      src === 'Reddit' ? 'bg-orange-800 text-orange-200' :
+                      src === 'YouTube' ? 'bg-red-800 text-red-200' :
+                      src === 'Trends' ? 'bg-blue-800 text-blue-200' :
+                      src === 'X' ? 'bg-zinc-600 text-zinc-200' :
+                      'bg-purple-800 text-purple-200'
+                    }
+                  />
+                ))}
               </div>
             )}
           </div>
+
+          {/* Stats */}
+          <div className="mb-4 text-xs text-zinc-500 flex gap-3 flex-wrap">
+            <span>{filteredIntel.length} rows</span>
+            {filterTypes.length > 0 && <span>· type: {filterTypes.join(', ')}</span>}
+            {filterBrands.length > 0 && <span>· brand: {filterBrands.join(', ')}</span>}
+            {filterSources.length > 0 && <span>· source: {filterSources.join(', ')}</span>}
+          </div>
+
+          {/* Week-grouped rows */}
+          {weekGroups.length === 0 ? (
+            <div className="text-center py-16 text-zinc-600">
+              <Brain className="w-8 h-8 mx-auto mb-3 opacity-30" />
+              <p className="text-sm">No intel matches your filters.</p>
+              <p className="text-xs mt-1">Monday Intel runs every Monday at 6AM.</p>
+            </div>
+          ) : (
+            weekGroups.map(([weekKey, rows]) => (
+              <WeekGroup key={weekKey} weekKey={weekKey} rows={rows} defaultExpanded={weekKey === currentWeek}>
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-700 bg-zinc-900/40">
+                      <th className="text-left text-zinc-500 uppercase tracking-wider py-2 px-3 font-medium w-36">Source</th>
+                      <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-3 font-medium w-28">Type</th>
+                      <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-3 font-medium w-14">Brand</th>
+                      <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-3 font-medium">Raw Finding</th>
+                      <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-3 font-medium">Hook</th>
+                      <th className="text-left text-zinc-500 uppercase tracking-wider py-2 pr-3 font-medium w-28">Format</th>
+                      <th className="w-24"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/80">
+                    {rows.map(row => (
+                      <tr key={row.id} className="hover:bg-zinc-800/40 transition-colors group">
+                        <td className="py-3 px-3 min-w-[140px]">
+                          <div className="space-y-1">
+                            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${SOURCE_COLORS[row.source] || 'bg-zinc-700 text-zinc-300'}`}>
+                              {row.source}
+                            </span>
+                            {row.link ? (
+                              <a href={row.link} target="_blank" rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-xs transition-colors mt-0.5">
+                                <ExternalLink className="w-3 h-3 shrink-0" />
+                                <span className="truncate max-w-[120px]">{row.sourceDetail || row.link}</span>
+                              </a>
+                            ) : (
+                              <div className="text-zinc-500 text-xs mt-0.5">{row.sourceDetail}</div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 pr-3">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[normalizeType(row.type)] || 'bg-zinc-700 text-zinc-300'}`}>
+                            {normalizeType(row.type) || 'Monday Intel'}
+                          </span>
+                        </td>
+                        <td className="py-3 pr-3">
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${row.brand === 'TTH' ? 'bg-blue-900/60 text-blue-300' : 'bg-green-900/60 text-green-300'}`}>
+                            {row.brand}
+                          </span>
+                        </td>
+                        <td className="py-3 pr-3 max-w-xs">
+                          <p className="text-zinc-200 leading-relaxed italic">"{row.rawFinding}"</p>
+                        </td>
+                        <td className="py-3 pr-3 max-w-xs">
+                          <p className="text-zinc-300 font-medium leading-snug">{row.hookSuggestion}</p>
+                          <p className="text-zinc-500 mt-1">{row.angle}</p>
+                        </td>
+                        <td className="py-3 pr-3">
+                          <span className="text-zinc-400 bg-zinc-800 px-2 py-1 rounded text-xs">{row.format}</span>
+                        </td>
+                        <td className="py-3 pr-3">
+                          <div className="flex items-center gap-1.5">
+                            <div className="opacity-0 group-hover:opacity-100 transition-all">
+                              {batch.find(b => b.id === row.id) ? (
+                                <button
+                                  onClick={() => removeFromBatch(row.id)}
+                                  className="text-xs px-2 py-1 bg-yellow-600 hover:bg-yellow-500 text-zinc-900 font-bold rounded transition-colors whitespace-nowrap"
+                                >
+                                  ✓ Queued
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => addToBatch(row.id)}
+                                  className="text-xs px-2 py-1 bg-zinc-700 hover:bg-yellow-500 hover:text-zinc-900 text-zinc-300 font-medium rounded transition-colors whitespace-nowrap"
+                                >
+                                  + Batch
+                                </button>
+                              )}
+                            </div>
+                            {confirmDeleteId === row.id ? (
+                              <div className="flex items-center gap-1 whitespace-nowrap">
+                                <span className="text-xs text-zinc-400">Delete?</span>
+                                <button onClick={() => softDelete(row.id)} className="text-xs px-1.5 py-0.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold">Yes</button>
+                                <button onClick={() => setConfirmDeleteId(null)} className="text-xs text-zinc-500 hover:text-zinc-300">No</button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setConfirmDeleteId(row.id)}
+                                className="text-zinc-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                                title="Move to trash"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </WeekGroup>
+            ))
+          )}
         </div>
       )}
     </div>
