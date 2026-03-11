@@ -394,7 +394,19 @@ export default function MissionControl() {
     if (!row) return
     const { data: existing } = await getSb().from('batch_queue').select('id').eq('id', id).single()
     if (!existing) {
-      await getSb().from('batch_queue').insert({ ...row, erikNote: '', queuedAt: new Date().toISOString() })
+      const { error } = await getSb().from('batch_queue').insert({
+        id: row.id,
+        type: row.type,
+        source: row.source,
+        brand: row.brand,
+        finding: row.finding,
+        link: row.link,
+        week: row.week,
+        addedAt: row.addedAt,
+        erikNote: '',
+        queuedAt: new Date().toISOString()
+      })
+      if (error) { showToast('Batch add failed: ' + error.message); return }
     }
     const { data: bq } = await getSb().from('batch_queue').select('*').order('queuedAt', { ascending: true })
     setBatch(bq || [])
