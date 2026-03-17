@@ -161,8 +161,8 @@ function Column({ title, tasks, color }: { title: string; tasks: Task[]; color: 
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <ModelBadge model={task.model} />
-              {task.startedAt && (
-                <span className="text-xs text-zinc-500">{fmt(task.startedAt)}</span>
+              {(task.completedAt || task.startedAt) && (
+                <span className="text-xs text-zinc-500">{fmt(task.completedAt || task.startedAt || '')}</span>
               )}
             </div>
             {task.notes && (
